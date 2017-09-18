@@ -42,6 +42,8 @@ func main() {
 					startTime, endTime := convertTime(time)
 					animeIn.StartTime = startTime
 					animeIn.EndTime = endTime
+					log.Println("開始時間" + startTime)
+					log.Println("終了時間" + endTime)
 					return false
 				}
 			}
@@ -83,7 +85,7 @@ func convertTime(animeTime string) (string, string) {
 	// 各数値をstring化
 	yearString := fmt.Sprintf("%04s", strconv.Itoa(year))
 	monthString := fmt.Sprintf("%02s", strconv.Itoa(month))
-	dayString := fmt.Sprintf("%02s", strconv.Itoa(month))
+	dayString := fmt.Sprintf("%02s", strconv.Itoa(day))
 	hourString := fmt.Sprintf("%02s", strconv.Itoa(h))
 	minuteString := fmt.Sprintf("%02s", strconv.Itoa(m))
 	startTimeString := yearString + "-" + monthString + "-" + dayString + "T" + hourString + ":" + minuteString + ":00+09:00"
