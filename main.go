@@ -17,8 +17,9 @@ func main() {
 	url := "https://akiba-souken.com/anime/autumn/"
 	doc, _ := goquery.NewDocument(url)
 
-	animeIn := mygoogle.Anime{}
+
 	doc.Find("div.main div.itemBox").Each(func(i int, s *goquery.Selection) {
+		animeIn := mygoogle.Anime{}
 		// Title
 		animeIn.Title = s.Find("div.mTitle h2").Text()
 
@@ -39,6 +40,7 @@ func main() {
 				if channel == broadcast {
 					animeIn.Station = broadcast
 					time := strings.Replace(Time, "～", "", -1)
+					log.Println(time)
 					startTime, endTime := convertTime(time)
 					animeIn.StartTime = startTime
 					animeIn.EndTime = endTime
@@ -59,13 +61,13 @@ func main() {
 func convertTime(animeTime string) (string, string) {
 	startTime := "00:00"
     addTime := 0
-	split := strings.Split(animeTime, "年")
+	split := strings.SplitN(animeTime, "年", 2)
 	year, _  := strconv.Atoi(split[0])
-	split = strings.Split(split[1], "月")
+	split = strings.SplitN(split[1], "月", 2)
 	month, _ :=  strconv.Atoi(split[0])
-	split = strings.Split(split[1], "日")
+	split = strings.SplitN(split[1], "日", 2)
 	day , _ :=  strconv.Atoi(split[0])
-	split = strings.Split(split[1], ")")
+	split = strings.Split(split[1], ")" )
 	h := 0
 	m := 0
 	if len(split) > 1  && split[1] != "" {
