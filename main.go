@@ -13,7 +13,7 @@ import (
 
 
 func main() {
-	allowedChannels := []string{"TOKYO MX", "日本テレビ", "フジテレビ", "BS11"}
+	allowedChannels := []string{"TOKYO MX", "TBS", "テレビ東京", "日本テレビ", "フジテレビ", "BS11", "BS-TBS"}
 	url := "https://akiba-souken.com/anime/autumn/"
 	doc, _ := goquery.NewDocument(url)
 
