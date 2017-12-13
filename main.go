@@ -1,22 +1,20 @@
-
 package main
 
 import (
-	"github.com/PuerkitoBio/goquery"
+	"fmt"
 	"log"
+	"strconv"
 	"strings"
 	"time"
-	"fmt"
-	"strconv"
+
 	"./mygoogle"
+	"github.com/PuerkitoBio/goquery"
 )
 
-
 func main() {
-	allowedChannels := []string{"TOKYO MX", "TBS", "テレビ東京", "日本テレビ", "フジテレビ", "BS11", "BS-TBS"}
-	url := "https://akiba-souken.com/anime/autumn/"
+	allowedChannels := []string{"TOKYO MX", "TBS", "テレビ東京", "日本テレビ", "フジテレビ", "BS11", "BS-TBS", "NHK BSプレミアム"}
+	url := "https://akiba-souken.com/anime/winter/"
 	doc, _ := goquery.NewDocument(url)
-
 
 	doc.Find("div.main div.itemBox").Each(func(i int, s *goquery.Selection) {
 		animeIn := mygoogle.Anime{}
@@ -32,7 +30,7 @@ func main() {
 
 		log.Println(animeIn.Title)
 		// 放送局
-		s.Find("div.itemData div.schedule table tbody tr td span.station").EachWithBreak(func(j int, s *goquery.Selection) bool{
+		s.Find("div.itemData div.schedule table tbody tr td span.station").EachWithBreak(func(j int, s *goquery.Selection) bool {
 			// 指定放送局のみ視聴する
 			for _, channel := range allowedChannels {
 				broadcast := s.Text()
@@ -60,23 +58,35 @@ func main() {
 
 func convertTime(animeTime string) (string, string) {
 	startTime := "00:00"
-    addTime := 0
+	addTime := 0
 	split := strings.SplitN(animeTime, "年", 2)
-	year, _  := strconv.Atoi(split[0])
+	year, _ := strconv.Atoi(split[0])
 	split = strings.SplitN(split[1], "月", 2)
-	month, _ :=  strconv.Atoi(split[0])
+	month, _ := strconv.Atoi(split[0])
+
 	split = strings.SplitN(split[1], "日", 2)
-	day , _ :=  strconv.Atoi(split[0])
-	split = strings.Split(split[1], ")" )
+
+	day, _ := strconv.Atoi(split[0])
+
+	// 開始日時が未定ならば1日を開始日時とする
+	if day == 0 {
+		day = 1
+	}
+
+	// 曜日がない場合は処理しない
+	if len(split) > 1 {
+		split = strings.Split(split[1], ")")
+	}
+
 	h := 0
 	m := 0
-	if len(split) > 1  && split[1] != "" {
+	if len(split) > 1 && split[1] != "" {
 		startTime = split[1]
 		// 放送日時が確定している場合は30分で枠を取る
 		addTime = 30
 		split = strings.Split(startTime, ":")
 		h, _ = strconv.Atoi(split[0])
-		m, _  = strconv.Atoi(split[1])
+		m, _ = strconv.Atoi(split[1])
 		// 24時以降ならば日付を1日増やして24時間減算する
 		if h >= 24 {
 			day = day + 1
@@ -94,5 +104,5 @@ func convertTime(animeTime string) (string, string) {
 	layout := "2006-01-02T15:04:05-07:00"
 	t, _ := time.Parse(layout, startTimeString)
 	t = t.Add(time.Duration(addTime) * time.Minute)
-	return startTimeString , t.Format(layout)
+	return startTimeString, t.Format(layout)
 }
