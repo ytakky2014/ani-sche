@@ -121,7 +121,12 @@ func CreateCalender(anime Anime) string{
 	if err != nil {
 		log.Fatalf("Unable to retrieve calendar Client %v", err)
 	}
-
+	if anime.StartTime == "" {
+		return ""
+	}
+	if anime.EndTime == "" {
+		return ""
+	}
 	event := &calendar.Event{
 		Summary: anime.Title + " : " + anime.Station,
 		Description: anime.Title + " : ",
@@ -140,7 +145,6 @@ func CreateCalender(anime Anime) string{
 	if err != nil {
 		log.Fatalf("Unable to create event. %v\n", err)
 	}
-	fmt.Printf("Event created: %s\n", event.HtmlLink)
 	return event.HtmlLink
 
 }
