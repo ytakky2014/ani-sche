@@ -37,9 +37,8 @@ func main() {
 				Time := s.Next().Text()
 				if channel == broadcast {
 					animeIn.Station = broadcast
-					time := strings.Replace(Time, "～", "", -1)
-					log.Println(time)
-					startTime, endTime := convertTime(time)
+					times := strings.Split(Time, "～")
+					startTime, endTime := convertTime(times[0])
 					animeIn.StartTime = startTime
 					animeIn.EndTime = endTime
 					log.Println("開始時間" + startTime)
@@ -104,5 +103,6 @@ func convertTime(animeTime string) (string, string) {
 	layout := "2006-01-02T15:04:05-07:00"
 	t, _ := time.Parse(layout, startTimeString)
 	t = t.Add(time.Duration(addTime) * time.Minute)
+	log.Printf("%+v", t)
 	return startTimeString, t.Format(layout)
 }
