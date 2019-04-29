@@ -8,12 +8,27 @@ import (
 	"time"
 
 	"./mygoogle"
+
 	"github.com/PuerkitoBio/goquery"
+	"github.com/manifoldco/promptui"
 )
 
+const targetURL = "https://akiba-souken.com/anime/"
+
 func main() {
+
+	ps := promptui.Select{
+		Label: "Select Season",
+		Items: []string{"spring", "summer", "autumn", "winter"},
+	}
+	_, season, err := ps.Run()
+	if err != nil {
+		log.Fatalf("ERROR : %s", err.Error())
+	}
+
+	url := fmt.Sprintf("%s%s", targetURL, season)
+
 	allowedChannels := []string{"TOKYO MX", "TBS", "テレビ東京", "日本テレビ", "フジテレビ", "BS11", "BS-TBS", "NHK BSプレミアム"}
-	url := "https://akiba-souken.com/anime/winter/"
 	doc, _ := goquery.NewDocument(url)
 
 	doc.Find("div.main div.itemBox").Each(func(i int, s *goquery.Selection) {
