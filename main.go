@@ -7,7 +7,7 @@ import (
 	"strings"
 	"time"
 
-	"./mygoogle"
+	"github.com/ytakky2014/ani-sche/mygoogle"
 
 	"github.com/PuerkitoBio/goquery"
 	"github.com/manifoldco/promptui"
