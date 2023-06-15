@@ -49,11 +49,24 @@ func main() {
 			// 指定放送局のみ視聴する
 			for _, channel := range allowedChannels {
 				broadcast := s.Text()
-				Time := s.Next().Text()
+				timeText := s.Next().Text()
 				if channel == broadcast {
 					animeIn.Station = broadcast
-					times := strings.Split(Time, "～")
-					startTime, endTime := convertTime(times[0])
+					// 半角〜と全角～が混在するようになったのでどちらのパターンにも対応する
+					times := []string{}
+					if strings.Contains(timeText, "〜") {
+						times = strings.Split(timeText,"〜")
+					} else {
+						times = strings.Split(timeText, "～")
+					}
+					// 時間が取れない場合はskip
+					if len(times) <=1 {
+						return false
+					}
+					startTime, endTime, err := convertTime(times[0])
+					if err != nil {
+						return false
+					}
 					animeIn.StartTime = startTime
 					animeIn.EndTime = endTime
 					log.Println("開始時間" + startTime)
@@ -70,17 +83,33 @@ func main() {
 
 }
 
-func convertTime(animeTime string) (string, string) {
+func convertTime(animeTime string) (string, string, error ) {
 	startTime := "00:00"
 	addTime := 0
 	split := strings.SplitN(animeTime, "年", 2)
-	year, _ := strconv.Atoi(split[0])
-	split = strings.SplitN(split[1], "月", 2)
-	month, _ := strconv.Atoi(split[0])
+	year, err := strconv.Atoi(split[0])
+	if err != nil {
+		return "", "", err
+	}
 
-	split = strings.SplitN(split[1], "日", 2)
+	// 月と⽉ 2種類あるのでどちらにも対応する
+	splitMonth := []string{}
+	if strings.Contains(split[1], "月") {
+		splitMonth = strings.SplitN(split[1], "月", 2)
+	} else {
+		splitMonth = strings.SplitN(split[1], "⽉", 2)
+	}
 
-	day, _ := strconv.Atoi(split[0])
+	month, err := strconv.Atoi(splitMonth[0])
+	if err != nil {
+		return "", "", err
+	}
+
+	split = strings.SplitN(splitMonth[1], "日", 2)
+	day, err := strconv.Atoi(split[0])
+	if err != nil {
+		return "", "", err
+	}
 
 	// 開始日時が未定ならば1日を開始日時とする
 	if day == 0 {
@@ -119,5 +148,5 @@ func convertTime(animeTime string) (string, string) {
 	t, _ := time.Parse(layout, startTimeString)
 	t = t.Add(time.Duration(addTime) * time.Minute)
 	log.Printf("%+v", t)
-	return startTimeString, t.Format(layout)
+	return startTimeString, t.Format(layout), nil
 }
