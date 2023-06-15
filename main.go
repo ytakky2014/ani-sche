@@ -53,6 +53,10 @@ func main() {
 				if channel == broadcast {
 					animeIn.Station = broadcast
 					times := strings.Split(Time, "～")
+					// 時間が取れない場合はskip
+					if len(times) <=1 {
+						return false
+					}
 					startTime, endTime := convertTime(times[0])
 					animeIn.StartTime = startTime
 					animeIn.EndTime = endTime
