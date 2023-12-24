@@ -55,16 +55,17 @@ func main() {
 					// 半角〜と全角～が混在するようになったのでどちらのパターンにも対応する
 					times := []string{}
 					if strings.Contains(timeText, "〜") {
-						times = strings.Split(timeText,"〜")
+						times = strings.Split(timeText, "〜")
 					} else {
 						times = strings.Split(timeText, "～")
 					}
 					// 時間が取れない場合はskip
-					if len(times) <=1 {
+					if len(times) <= 1 {
 						return false
 					}
 					startTime, endTime, err := convertTime(times[0])
 					if err != nil {
+						animeIn.SkipCalender = true
 						return false
 					}
 					animeIn.StartTime = startTime
@@ -76,14 +77,15 @@ func main() {
 			}
 			return true
 		})
-		out := mygoogle.CreateCalender(animeIn)
-		log.Println(out)
-
+		if !animeIn.SkipCalender {
+			out := mygoogle.CreateCalender(animeIn)
+			log.Println(out)
+		}
 	})
 
 }
 
-func convertTime(animeTime string) (string, string, error ) {
+func convertTime(animeTime string) (string, string, error) {
 	startTime := "00:00"
 	addTime := 0
 	split := strings.SplitN(animeTime, "年", 2)
@@ -139,6 +141,9 @@ func convertTime(animeTime string) (string, string, error ) {
 
 	// 各数値をstring化
 	yearString := fmt.Sprintf("%04s", strconv.Itoa(year))
+	if yearString == "0001" {
+		return "", "", fmt.Errorf("invalid year")
+	}
 	monthString := fmt.Sprintf("%02s", strconv.Itoa(month))
 	dayString := fmt.Sprintf("%02s", strconv.Itoa(day))
 	hourString := fmt.Sprintf("%02s", strconv.Itoa(h))
