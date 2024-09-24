@@ -1,10 +1,8 @@
 package mygoogle
 
 import (
-
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"net/url"
@@ -16,7 +14,6 @@ import (
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
 	"google.golang.org/api/calendar/v3"
-
 )
 
 // getClient uses a Context and Config to retrieve a Token
@@ -91,20 +88,19 @@ func saveToken(file string, token *oauth2.Token) {
 	json.NewEncoder(f).Encode(token)
 }
 
-
-
 type Anime struct {
-	Title string
-	Ranking []string
-	Station string
-	StartTime string
-	EndTime string
+	Title        string
+	Ranking      []string
+	Station      string
+	StartTime    string
+	EndTime      string
+	SkipCalender bool
 }
 
-func CreateCalender(anime Anime) string{
+func CreateCalender(anime Anime) string {
 	ctx := context.Background()
 
-	b, err := ioutil.ReadFile("client_secret.json")
+	b, err := os.ReadFile("client_secret.json")
 	if err != nil {
 		log.Fatalf("Unable to read client secret file: %v", err)
 	}
@@ -128,7 +124,7 @@ func CreateCalender(anime Anime) string{
 		return ""
 	}
 	event := &calendar.Event{
-		Summary: anime.Title + " : " + anime.Station,
+		Summary:     anime.Title + " : " + anime.Station,
 		Description: anime.Title + " : ",
 		Start: &calendar.EventDateTime{
 			DateTime: anime.StartTime,
@@ -143,7 +139,7 @@ func CreateCalender(anime Anime) string{
 	calendarId := "primary"
 	event, err = srv.Events.Insert(calendarId, event).Do()
 	if err != nil {
-		log.Fatalf("Unable to create event. %v\n", err)
+		fmt.Errorf("Unable to create event. %v\n", err)
 	}
 	return event.HtmlLink
 

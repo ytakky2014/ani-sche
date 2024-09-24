@@ -16,7 +16,6 @@ import (
 const targetURL = "https://akiba-souken.com/anime/"
 
 func main() {
-
 	ps := promptui.Select{
 		Label: "Select Season",
 		Items: []string{"spring", "summer", "autumn", "winter"},
@@ -129,7 +128,16 @@ func convertTime(animeTime string) (string, string, error) {
 		startTime = split[1]
 		// 放送日時が確定している場合は30分で枠を取る
 		addTime = 30
-		split = strings.Split(startTime, ":")
+		// 時刻の表記ゆれで : と "時"のパターンがあるので正規化する
+		delimiter := ":"
+		if strings.Contains(startTime, "時") {
+			startTime = strings.ReplaceAll(startTime, "時", ":")
+			startTime = strings.ReplaceAll(startTime, "分", "")
+		}
+		if strings.Contains(startTime, "：") {
+			startTime = strings.ReplaceAll(startTime, "：", ":")
+		}
+		split = strings.Split(startTime, delimiter)
 		h, _ = strconv.Atoi(split[0])
 		m, _ = strconv.Atoi(split[1])
 		// 24時以降ならば日付を1日増やして24時間減算する
